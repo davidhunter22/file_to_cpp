@@ -1,0 +1,7 @@
+{
+    "name": "filetocpp",
+    "version-string": "24.3.1",
+    "dependencies": [
+        "cli11"
+    ]
+}
