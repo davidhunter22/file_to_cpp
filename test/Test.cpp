@@ -1,9 +1,10 @@
 #include <iostream>
 
-// #include "HelloWorld.txt.h"
+#include "HelloWorld.h"
 
 int main()
 {
-    // std::cout << HelloWorld << "\n";
+    auto data { get_HelloWorld( ) };
+
     return 0;
 }
