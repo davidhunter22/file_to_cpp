@@ -1,17 +1,11 @@
 #include <CLI/CLI.hpp>
 
-import std;
+// import std;
+
+#include <filesystem>
+#include <span>
 
 using std::vector;
-
-// Options output data type, std::byte, char, char8_t
-// Output container type, std::span, std::vector, std::string, ...
-// Output use std::import or #include
-// Output declspec macro
-// Output declspec header
-// Output pragma or guards
-// Output namespace
-// Output variable name
 
 char const* convert_to_hex_string( unsigned char );
 
@@ -24,7 +18,7 @@ struct Configuration
 
     std::string output_variable_name;
 
-    bool use_std_library_module = true;
+    bool use_std_library_module = false;
 
     std::string namespace_name;
 
@@ -78,7 +72,7 @@ void output_cpp_file( Configuration const& configuration, std::span<unsigned cha
 
     if( ofs.good( ) == false )
     {
-        throw std::exception( "Opening of out file {} produced an error" );
+        throw std::runtime_error( "Opening of output file produced an error" );
     }
 
     if( configuration.use_std_library_module == true )
@@ -87,8 +81,8 @@ void output_cpp_file( Configuration const& configuration, std::span<unsigned cha
     }
     else
     {
-        ofs << "#include <span>;\n";
-        ofs << "#include <vector>;\n\n";
+        ofs << "#include <span>\n";
+        ofs << "#include <vector>\n\n";
     }
 
     output_open_namespace( ofs, configuration );
@@ -134,7 +128,7 @@ void output_header_file( Configuration const& configuration )
     }
     else
     {
-        ofs << "#include <span>;\n\n";
+        ofs << "#include <span>\n\n";
     }
 
     output_open_namespace( ofs, configuration );
@@ -168,7 +162,7 @@ Configuration create_configuration_from_command_line_arguments( int argc, char**
     {
         app.parse( argc, argv );
 
-        // The rest of this sets up reasoanble defaults for things that the caller did not set
+        // The rest of this sets up reasonable defaults for things that the caller did not set
 
         // If the output name is not set we use the stem of the input name
         if( configuration.output_file_name.empty( ) )
@@ -202,12 +196,11 @@ int main( int argc, char** argv )
     {
         Configuration configuration { create_configuration_from_command_line_arguments( argc, argv ) };
 
-        std::cout << "Running file_to_cpp input " << argv[ 1 ] << " output " << argv[ 2 ] << std::endl;
-
         // This is the actual byte data contained in the input file.
         vector<unsigned char> data { read_file( configuration.input_file_path ) };
 
         output_cpp_file   ( configuration, data );
+
         output_header_file( configuration );
     }
     catch( CLI::ParseError const& exception )
@@ -241,6 +234,8 @@ char const* convert_to_hex_string( unsigned char value )
     return hex;
 }
 
+// GCC throw at runtime with a std::bad_cast for some unknown reason
+#if defined(_MSC_VER )
 std::vector<unsigned char> read_file( std::filesystem::path const& filename )
 {
     std::basic_ifstream<unsigned char> ifs { filename.c_str( ), std::ios::binary };
@@ -250,10 +245,27 @@ std::vector<unsigned char> read_file( std::filesystem::path const& filename )
         throw std::runtime_error( "Failed to open file " + filename.string( ) );
     }
 
-    std::vector<unsigned char> data { std::vector<unsigned char>{ std::istreambuf_iterator<unsigned char>( ifs ), {} } };
-
-    ifs.close( );
+    std::vector<unsigned char> data( ( std::istreambuf_iterator<unsigned char>( ifs ) ), std::istreambuf_iterator<unsigned char>( ) );
 
     return data;
 }
+#else
+std::vector<unsigned char> read_file( std::filesystem::path const& filename )
+{
+    std::basic_ifstream<char> ifs { filename.c_str( ), std::ios::binary };
+
+    if( ifs.good( ) == false )
+    {
+        throw std::runtime_error( "Failed to open file " + filename.string( ) );
+    }
+
+    std::vector<unsigned char> data;
+    while(ifs.peek() != EOF)
+    {
+       data.push_back( static_cast<unsigned char>( ifs.get() ) );
+    }
+
+    return data;
+}
+#endif
 
