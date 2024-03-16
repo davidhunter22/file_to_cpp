@@ -9,7 +9,7 @@ set(INPUT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/HelloWorld.txt")
 set(OUTPUT_CPP_FILE    "HelloWorld.cpp")
 set(OUTPUT_HEADER_FILE "HelloWorld.h")
 
-add_executable(hello_world
+add_executable(file_to_cpp_test
    Test.cpp
    HelloWorld.txt)
 
@@ -28,16 +28,16 @@ add_custom_command(
 
 # Add both generated files to the target, add_custom_command does not do this
 # add_custom_command does add the GENERATED source file proerty to both these files so there is no need to do that
-target_sources(hello_world PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_CPP_FILE})
-target_sources(hello_world PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_HEADER_FILE})
+target_sources(file_to_cpp PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_CPP_FILE})
+target_sources(file_to_cpp PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_HEADER_FILE})
 
 # To #include the header file, which is in the build tree, we need to add that directory to the build path
-target_include_directories(hello_world PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(file_to_cpp PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 # This stuff is need to get "import std;" to work
 if (MSVC)
     # https://gitlab.kitware.com/cmake/cmake/-/issues/24922
-    set_target_properties(hello_world PROPERTIES VS_USER_PROPS "${CMAKE_SOURCE_DIR}/VS.props")
-    set_target_properties(hello_world PROPERTIES VS_GLOBAL_BuildStlModules "true")
+    set_target_properties(file_to_cpp PROPERTIES VS_USER_PROPS "${CMAKE_SOURCE_DIR}/VS.props")
+    set_target_properties(file_to_cpp PROPERTIES VS_GLOBAL_BuildStlModules "true")
 endif()
 
