@@ -13,10 +13,24 @@ std::vector<unsigned char> read_file( std::filesystem::path const& );
 
 struct Configuration
 {
+    enum class Type
+    {
+        String = 1,
+        VectorOfUnsignedChar
+    };
+
+    inline static std::map<std::string, Type> TypeName
+    {
+        { "vui",    Type::VectorOfUnsignedChar },
+        { "string", Type::String}
+    };
+
     std::filesystem::path input_file_path;
     std::filesystem::path output_file_name;
 
     std::string output_variable_name;
+
+    Type type = Type::String;
 
     bool use_std_library_module = false;
 
@@ -64,6 +78,17 @@ void output_close_namespace( std::ofstream& ofs, Configuration const& configurat
     }
 }
 
+std::string type_name( Configuration const& configuration )
+{
+    switch( configuration.type )
+    {
+    case Configuration::Type::String :               return "std::string";
+    case Configuration::Type::VectorOfUnsignedChar : return "std::vector<unsigned char>";
+    }
+
+    return "";
+}
+
 void output_cpp_file( Configuration const& configuration, std::span<unsigned char> data )
 {
     std::ofstream ofs;
@@ -81,20 +106,20 @@ void output_cpp_file( Configuration const& configuration, std::span<unsigned cha
     }
     else
     {
-        ofs << "#include <span>\n";
+        ofs << "#include <string>\n";
         ofs << "#include <vector>\n\n";
     }
 
     output_open_namespace( ofs, configuration );
 
     // This is the actual data written out as hexadecimal test values into an array
-    ofs << "std::vector<unsigned char> " << configuration.output_variable_name << "\n";
+    ofs << type_name( configuration ) << " " << configuration.output_variable_name << "\n";
     ofs << "{\n    ";
     ouput_as_hex_strings( ofs, configuration, data );
     ofs << "\n};\n" << std::endl;
 
-    // Function to get the data as a span
-    ofs << "std::span<unsigned char> get_" << configuration.output_variable_name << "( )\n";
+    // Function to get the data
+    ofs << type_name( configuration ) << " const& get_" << configuration.output_variable_name << "( )\n";
     ofs << "{\n";
     ofs << "    return " << configuration.output_variable_name << ";\n";
     ofs << "}\n";
@@ -128,7 +153,8 @@ void output_header_file( Configuration const& configuration )
     }
     else
     {
-        ofs << "#include <span>\n\n";
+        ofs << "#include <string>\n";
+        ofs << "#include <vector>\n\n";
     }
 
     output_open_namespace( ofs, configuration );
@@ -138,7 +164,7 @@ void output_header_file( Configuration const& configuration )
         ofs << configuration.declspec_macro << " ";
     }
 
-    ofs << "std::span<unsigned char> get_" << configuration.output_variable_name << "( );\n";
+    ofs << type_name( configuration ) << " const& get_" << configuration.output_variable_name << "( );\n";
 
     output_close_namespace( ofs, configuration );
 }
@@ -152,6 +178,7 @@ Configuration create_configuration_from_command_line_arguments( int argc, char**
     app.add_option( "-i,--input",        configuration.input_file_path,        "Input file path" )->required( );
     app.add_option( "-o,--output",       configuration.output_file_name,       "Output file name" );
     app.add_option( "-v,--variable",     configuration.output_variable_name,   "Output variable name" );
+    app.add_option( "-t,--type",         configuration.type,                   "Type to use in output" )->transform( CLI::CheckedTransformer(Configuration::TypeName, CLI::ignore_case ) );
     app.add_option( "--namespace",       configuration.namespace_name,         "Namespace to wrap all the code in" );
     app.add_flag  ( "--use_std_module",  configuration.use_std_library_module, "Use std library module rath than #includes" );
     app.add_flag  ( "--output_header",   configuration.output_header_file,     "Output a header file" );
