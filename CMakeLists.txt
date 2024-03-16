@@ -8,4 +8,5 @@ set_property(GLOBAL PROPERTY USE_FOLDERS "On")
 
 add_subdirectory(src)
 add_subdirectory(test)
+add_subdirectory(cmake)
 

@@ -2,7 +2,7 @@ source_group( " "  REGULAR_EXPRESSION .*)
 
 find_package(CLI11 CONFIG REQUIRED)
 
-add_executable(file_to_cpp FileToCpp.cpp)
+add_executable(file_to_cpp FileToCpp.cpp ${CMAKE_SOURCE_DIR}/README.md)
 
 target_link_libraries(file_to_cpp PRIVATE CLI11::CLI11)
 

@@ -1,25 +1,33 @@
+# This is an example of a CMake project that uses the executable.
+# It does so directly not using any pre defined CMake function or scripts
+# This is totaly self contained, everything you need is right here
+
+# Stop the generated Visual Studio project creating annoying sub folders like, "Source"
 source_group( " "  REGULAR_EXPRESSION .*)
 
 set(INPUT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/HelloWorld.txt")
-set(OUTPUT_CPP_FILE "HelloWorld.cpp")
+set(OUTPUT_CPP_FILE    "HelloWorld.cpp")
 set(OUTPUT_HEADER_FILE "HelloWorld.h")
 
-# Note that the file_to_cpp executable is found automatically by add_custom_command as it's a known add_executable target
+add_executable(hello_world
+   Test.cpp
+   HelloWorld.txt)
+
+# Note that the 'file_to_cpp' executable is found automatically by add_custom_command as it's a known target created by an add_executable command
 add_custom_command(
-    OUTPUT HelloWorld.cpp
+    OUTPUT ${OUTPUT_CPP_FILE} ${OUTPUT_HEADER_FILE}
     MAIN_DEPENDENCY ${INPUT_FILE}
     COMMAND file_to_cpp -i ${INPUT_FILE} --output_header
     BYPRODUCTS ${OUTPUT_HEADER_FILE}
     VERBATIM
     COMMENT "Generating embeded file for input ${INPUT_FILE}")
 
-add_executable(hello_world
-   Test.cpp
-   HelloWorld.txt)
+# Add both generated files to the target, add_custom_command does not do this
+# add_custom_command does add the GENERATED source file proerty to both these files so there is no need to do that
+target_sources(hello_world PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_CPP_FILE})
+target_sources(hello_world PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_HEADER_FILE})
 
-target_sources(hello_world PRIVATE ${OUTPUT_CPP_FILE})
-target_sources(hello_world PRIVATE ${OUTPUT_HEADER_FILE})
-
+# To #include the header file, which is in the build tree, we need to add that directory to the build path
 target_include_directories(hello_world PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 # This stuff is need to get "import std;" to work
