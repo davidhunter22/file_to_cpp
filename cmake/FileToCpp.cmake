@@ -8,6 +8,10 @@ function(call_file_to_cpp)
         ""
         "${ARGN}")
 
+    if(ARGS_VERBOSE)
+        message(STATUS "Running call_file_to_cpp command")
+    endif()
+
     if("${ARGS_FILE}" STREQUAL "")
         message(FATAL "No input filename passed to call_file_to_cpp")
     endif()
@@ -17,13 +21,13 @@ function(call_file_to_cpp)
     set(OUTPUT_HEADER_FILE ${FILE_WITHOUT_EXT}.h)
 
     if(NOT ${ARGS_NAMESPACE} STREQUAL "")
-        set(ARGS_NAMESPACE "--namespace ${ARGS_NAMESPACE}")
+        set(ARGS_NAMESPACE --namespace ${ARGS_NAMESPACE})
     endif()
 
     # We assume that you are using the CMake generated declspec stuff this uses and upper case target name with "_EXPORT" as the declspec macro
     string(TOUPPER ${ARGS_TARGET} TARGET_NAME_UPPER)
-    set(DECLSPEC_HEADER "--declspec_header ${ARGS_TARGET}_export.h")
-    set(DECLSPEC_MACRO  "--declspec_macro ${TARGET_NAME_UPPER}_EXPORT")
+    set(DECLSPEC_HEADER --declspec_header ${ARGS_TARGET}_export.h)
+    set(DECLSPEC_MACRO  --declspec_macro ${TARGET_NAME_UPPER}_EXPORT)
 
     if(ARGS_VERBOSE)
         message(STATUS "Running command `file_to_cpp -i ${ARGS_FILE} ${ARGS_NAMESPACE} --output_header  ${DECLSPEC_HEADER} ${DECLSPEC_MACRO}`")
@@ -33,7 +37,7 @@ function(call_file_to_cpp)
     add_custom_command(
         OUTPUT ${OUTPUT_CPP_FILE} ${OUTPUT_HEADER_FILE}
         MAIN_DEPENDENCY ${ARGS_FILE}
-        COMMAND file_to_cpp -i ${ARGS_FILE} ${ARGS_NAMESPACE} --output_header  ${DECLSPEC_HEADER} ${DECLSPEC_MACRO}
+        COMMAND file_to_cpp -i ${ARGS_FILE} ${ARGS_NAMESPACE}  --output_header
         BYPRODUCTS ${OUTPUT_HEADER_FILE}
         VERBATIM
         COMMENT "Generating embeded file for input ${ARGS_FILE}")

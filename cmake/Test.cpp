@@ -4,7 +4,7 @@
 
 int main()
 {
-    auto data { get_HelloWorld( ) };
+    auto data { Foo::get_HelloWorld( ) };
 
     std::cout << "Data " << data.size( ) << " " << data.data( ) << std::endl;
 

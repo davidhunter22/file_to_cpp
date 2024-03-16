@@ -13,11 +13,15 @@ add_executable(hello_world
    Test.cpp
    HelloWorld.txt)
 
+set(CMD file_to_cpp -i ${INPUT_FILE} --output_header)
+
+message(STATUS "CMD=${CMD}")
+
 # Note that the 'file_to_cpp' executable is found automatically by add_custom_command as it's a known target created by an add_executable command
 add_custom_command(
     OUTPUT ${OUTPUT_CPP_FILE} ${OUTPUT_HEADER_FILE}
     MAIN_DEPENDENCY ${INPUT_FILE}
-    COMMAND file_to_cpp -i ${INPUT_FILE} --output_header
+    COMMAND ${CMD}
     BYPRODUCTS ${OUTPUT_HEADER_FILE}
     VERBATIM
     COMMENT "Generating embeded file for input ${INPUT_FILE}")

@@ -180,10 +180,11 @@ Configuration create_configuration_from_command_line_arguments( int argc, char**
     app.add_option( "-v,--variable",     configuration.output_variable_name,   "Output variable name" );
     app.add_option( "-t,--type",         configuration.type,                   "Type to use in output" )->transform( CLI::CheckedTransformer(Configuration::TypeName, CLI::ignore_case ) );
     app.add_option( "--namespace",       configuration.namespace_name,         "Namespace to wrap all the code in" );
-    app.add_flag  ( "--use_std_module",  configuration.use_std_library_module, "Use std library module rath than #includes" );
-    app.add_flag  ( "--output_header",   configuration.output_header_file,     "Output a header file" );
     app.add_option( "--declspec_macro",  configuration.declspec_macro,         "Macro containing declspec(export) or import" );
     app.add_option( "--declspec_header", configuration.declspec_header,        "Header containing definition of declspec macro, this is option as the macro may be defined on the command line" );
+    app.add_flag  ( "--use_std_module",  configuration.use_std_library_module, "Use std library module rath than #includes" );
+    app.add_flag  ( "--output_header",   configuration.output_header_file,     "Output a header file" );
+
 
     try
     {
