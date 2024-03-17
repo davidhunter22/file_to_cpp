@@ -35,8 +35,8 @@ function(call_file_to_cpp)
 
     # We assume that you are using the CMake generated declspec stuff this uses and upper case target name with "_EXPORT" as the declspec macro
     string(TOUPPER ${ARGS_TARGET} TARGET_NAME_UPPER)
-    set(CMD ${CMD} --declspec_header ${ARGS_TARGET}_export.h)
-    set(CMD ${CMD} --declspec_macro  ${TARGET_NAME_UPPER}_EXPORT)
+    # set(CMD ${CMD} --declspec_header ${ARGS_TARGET}_export.h)
+    # set(CMD ${CMD} --declspec_macro  ${TARGET_NAME_UPPER}_EXPORT)
 
     if(ARGS_VERBOSE)
         message(STATUS "Running command ${CMD}")

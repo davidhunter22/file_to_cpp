@@ -4,14 +4,13 @@ find_package(CLI11 CONFIG REQUIRED)
 
 add_executable(file_to_cpp FileToCpp.cpp ${CMAKE_SOURCE_DIR}/README.md)
 
-target_link_libraries(file_to_cpp PRIVATE CLI11::CLI11)
+target_include_directories(file_to_cpp PUBLIC ${CMAKE_SOURCE_DIR}/lib)
 
-if (MSVC)
-    set_target_properties(file_to_cpp PROPERTIES VS_USER_PROPS "${CMAKE_SOURCE_DIR}/VS.props")
-endif()
+target_link_libraries(file_to_cpp PRIVATE file_to_cpp_lib CLI11::CLI11)
 
 if(MSVC)
     # https://gitlab.kitware.com/cmake/cmake/-/issues/24922
+    set_target_properties(file_to_cpp PROPERTIES VS_USER_PROPS "${CMAKE_SOURCE_DIR}/VS.props")
     set_target_properties(file_to_cpp PROPERTIES VS_GLOBAL_BuildStlModules "true")
 endif()
 

@@ -6,7 +6,8 @@ project(file_to_cpp)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS "On")
 
-add_subdirectory(src)
+add_subdirectory(lib)
+add_subdirectory(program)
 add_subdirectory(test)
 add_subdirectory(cmake)
 
