@@ -10,7 +10,12 @@ add_executable(file_to_cpp_cmake
    HelloWorld.txt
    FileToCpp.cmake)
 
-call_file_to_cpp(VERBOSE TARGET file_to_cpp_cmake FILE ${CMAKE_CURRENT_SOURCE_DIR}/HelloWorld.txt NAMESPACE Foo)
+call_file_to_cpp(
+     VERBOSE
+     TARGET file_to_cpp_cmake
+     INPUT_FILE HelloWorld.txt
+     NAMESPACE Foo
+     FUNCTION_NAME get_stuff)
 
 # # This stuff is need to get "import std;" to work
 # if (MSVC)

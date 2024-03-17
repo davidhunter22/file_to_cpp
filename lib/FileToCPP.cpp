@@ -24,7 +24,7 @@ char const* convert_to_hex_string( unsigned char value )
 
     return hex;
 }
-
+ 
 void ouput_as_hex_strings( std::ostream& os, Configuration const& configuration, std::span<unsigned char> data )
 {
     size_t line_count { 0 };
@@ -34,7 +34,7 @@ void ouput_as_hex_strings( std::ostream& os, Configuration const& configuration,
         os << convert_to_hex_string( v );
 
         // Output a new line every so often
-        if( ++line_count == configuration.line_break_every_n_values )
+        if( ( ++line_count % configuration.line_break_every_n_values ) == 0 )
         {
             os <<  "\n    ";
         }
@@ -91,22 +91,26 @@ void output_cpp( std::ostream& os, Configuration const& configuration, std::span
     }
     else
     {
+        // What we include should depend on the type we are storing the data in and returning to the caller
         os << "#include <string>\n";
         os << "#include <vector>\n\n";
     }
 
     output_open_namespace( os, configuration );
 
-    // This is the actual data written out as hexadecimal test values into an array
-    os << type_name( configuration ) << " " << configuration.output_variable_name << "\n";
-    os << "{\n    ";
-    ouput_as_hex_strings( os, configuration, data );
-    os << "\n};\n" << std::endl;
-
-    // Function to get the data
-    os << type_name( configuration ) << " const& get_" << configuration.output_variable_name << "( )\n";
+    // Open function to get the data
+    os << type_name( configuration ) << " const& " << configuration.output_function_name << "( )\n";
     os << "{\n";
-    os << "    return " << configuration.output_variable_name << ";\n";
+
+    // This is the actual data written out as hexadecimal test values into an array
+    // So something like "static const std::array<10> data { 0x4b, 0xa6, .... };" 
+    os << "    static const " << type_name( configuration ) << " data\n";
+    os << "    {\n    ";
+    ouput_as_hex_strings( os, configuration, data );
+    os << "\n    };\n" << std::endl;
+
+    // Close function
+    os << "    return data;\n";
     os << "}\n";
 
     output_close_namespace( os, configuration );
@@ -158,7 +162,7 @@ void output_header( std::ostream& os, Configuration const& configuration )
         os << configuration.declspec_macro << " ";
     }
 
-    os << type_name( configuration ) << " const& get_" << configuration.output_variable_name << "( );\n";
+    os << type_name( configuration ) << " const& " << configuration.output_function_name << "( );\n";
 
     output_close_namespace( os, configuration );
 }

@@ -20,7 +20,7 @@ struct Configuration
         VectorOfUnsignedChar
     };
 
-    std::string output_variable_name;
+    std::string output_function_name;
 
     Type type = Type::String;
 

@@ -16,16 +16,19 @@ struct Program
 {
     Program( int argc, char** argv ) :
         app { "file_to_cpp, convert a file into a cpp file, basically like xxd or #embed" }
-    {
+    { 
         app.add_option( "-i,--input",        input_file,                          "Input file path" )->required( );
         app.add_option( "-o,--output",       output_file_base,                     "Output file name, this should not include a .cpp or .h extension" );
-        app.add_option( "-v,--variable",     configuration.output_variable_name,   "Output variable name" );
+        app.add_option( "-f,--function",     configuration.output_function_name,   "Output function name to get the data" );
         app.add_option( "-t,--type",         configuration.type,                   "Type to use in output" )->transform( CLI::CheckedTransformer(TypeNameMapper, CLI::ignore_case ) );
+
         app.add_option( "--namespace",       configuration.namespace_name,         "Namespace to wrap all the code in" );
+        app.add_flag  ( "--use_std_module",  configuration.use_std_library_module, "Use std library module rath than #includes" );
+
+        // Header file only options
+        app.add_flag  ( "--output_header",   configuration.output_header_file,     "Output a header file" );
         app.add_option( "--declspec_macro",  configuration.declspec_macro,         "Macro containing declspec(export) or import" );
         app.add_option( "--declspec_header", configuration.declspec_header,        "Header containing definition of declspec macro, this is option as the macro may be defined on the command line" );
-        app.add_flag  ( "--use_std_module",  configuration.use_std_library_module, "Use std library module rath than #includes" );
-        app.add_flag  ( "--output_header",   configuration.output_header_file,     "Output a header file" );
 
         try
         {
@@ -42,11 +45,13 @@ struct Program
             output_file_cpp    = output_file_base.string( ) + ".cpp";
             output_file_header = output_file_base.string( ) + ".h";
 
-            if( configuration.output_variable_name.empty( ) )
+            if( configuration.output_function_name.empty( ) )
             {
-                configuration.output_variable_name = input_file.stem( ).string( );
+                // We only use the stem here so "/foo/bar.txt" just becomes "bar" 
+                configuration.output_function_name = input_file.stem( ).string( );
 
-                std::ranges::replace( configuration.output_variable_name, '.', '_');
+                // We need to replace any charracters that can appear in a file name but not in a function name
+                std::ranges::replace( configuration.output_function_name, '.', '_');
             }
         }
         catch( CLI::ParseError const& exception )

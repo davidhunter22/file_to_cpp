@@ -15,6 +15,10 @@ add_executable(file_to_cpp_test
 
 set(CMD file_to_cpp -i ${INPUT_FILE} --output_header)
 
+set(CMD ${CMD} --namespace Foo::Bar)
+
+set(CMD ${CMD} -f get_hello_world_data)
+
 message(STATUS "CMD=${CMD}")
 
 # Note that the 'file_to_cpp' executable is found automatically by add_custom_command as it's a known target created by an add_executable command
